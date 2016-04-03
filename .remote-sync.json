@@ -4,11 +4,14 @@
   "port": "22",
   "username": "pi",
   "password": "lovemeto",
-  "target": "/home/pi/Projects/",
+  "target": "/home/pi/Projects/WeatherCollector",
   "ignore": [
     ".remote-sync.json",
     ".git/**",
-    ".git*"
+    ".git*",
+    "__pycache__/**",
+    "*.pyc",
+    "*.db"
   ],
   "uploadOnSave": true,
   "deleteLocal": false

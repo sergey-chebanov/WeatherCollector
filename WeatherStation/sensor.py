@@ -1,5 +1,6 @@
 import serial
 import time
+import re
 
 
 def command(cmd):
@@ -11,13 +12,18 @@ def command(cmd):
 	time.sleep(1)
 	while ser.inWaiting() > 0:
 		s = ser.readline()
-		result.append (s)
+		result.append (s.strip())
 		time.sleep(0.1)
 
 	return result
 
-def getMeasurmetns():
-	return (1,2,3.)
+def getMeasurments():
+	rawMeasurments = "".join(command ('m'))
+	m = re.match("(.*):(.*):(.*):(.*):(.*)", rawMeasurments)
+	if m is not None:
+		return (m.group(1), m.group(2), m.group(5))
+	else:
+		return None
 
-if __name__ == "__main__":
-	print command('t')
+if __name__ == '__main__':
+	print(command('t'))
