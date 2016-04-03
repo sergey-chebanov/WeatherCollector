@@ -1,0 +1,15 @@
+{
+  "transport": "scp",
+  "hostname": "10.0.1.28",
+  "port": "22",
+  "username": "pi",
+  "password": "lovemeto",
+  "target": "/home/pi/Projects/",
+  "ignore": [
+    ".remote-sync.json",
+    ".git/**",
+    ".git*"
+  ],
+  "uploadOnSave": true,
+  "deleteLocal": false
+}
