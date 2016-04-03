@@ -1,5 +1,5 @@
 #!/bin/sh
 
-HOME=~/Projects/WeatherCollector/WeatherStation
+HOME=~/Projects/WeatherCollector/WeatherStation/
 cd $HOME
 python sensor-listener.py
