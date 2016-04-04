@@ -1,12 +1,31 @@
-from flask import Flask
+from flask import Flask, request, g
+import sqlite3
+from measurmentsDB import readMeasurments
 
-from sensor import command
 
-app = Flask(__name__) 
+app = Flask(__name__)
+
+
+@app.before_request
+def before_request():
+    g.db = sqlite3.connect('weather.db', detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+
+
+@app.teardown_request
+def teardown_request(exception):
+    db = getattr(g, 'db', None)
+    if db is not None:
+        db.close()
 
 @app.route('/')
-def hello():
-	return ''.join(command('t'))
+def measurments():
+	limit = int(request.args.get('limit', 0))
+	data = readMeasurments(10)
+	result = ''
+	for row in data:
+		result += "{0:02}:{1:02} T={2} H={3} P={4}<br/>".format(row[0].hour, row[0].minute, row[1], row[2], row[3])
+
+	return result
 
 
 if __name__ == "__main__":
