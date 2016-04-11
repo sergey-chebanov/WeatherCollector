@@ -20,7 +20,7 @@ def readLastMeasurment():
     return row
 
 
-def readMeasurments(limit = 20):
+def readMeasurments(limit = 20, desc=True):
     c = g.db.cursor()
-    c.execute ("select time, temp, hum, pres from measurments order by rowid desc limit ?", (limit,))
+    c.execute ("select * from (select time, temp, hum, pres from measurments order by time desc limit ?) order by time {sort}".format(sort='desc' if desc else 'asc'), (limit,))
     return [row for row in c]

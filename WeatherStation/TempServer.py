@@ -1,7 +1,7 @@
-from flask import Flask, request, g
+from flask import Flask, request, g, render_template
 import sqlite3
 from measurmentsDB import readMeasurments
-
+from collections import namedtuple
 
 app = Flask(__name__)
 
@@ -17,16 +17,25 @@ def teardown_request(exception):
     if db is not None:
         db.close()
 
+Measurement = namedtuple('Measurement', ['date', 'T', 'H', 'P'])
+
+@app.route('/pressure/')
+def pressure():
+    limit = int(request.args.get('limit', 100))
+    data = readMeasurments(limit, desc=False)
+    result = ''
+    return render_template('pressure.html', data=(Measurement(*row) for row in data))
+
 @app.route('/')
 def measurments():
-	limit = int(request.args.get('limit', 0))
-	data = readMeasurments(10)
-	result = ''
-	for row in data:
-		result += "{0:02}:{1:02} T={2} H={3} P={4}<br/>".format(row[0].hour, row[0].minute, row[1], row[2], row[3])
+    limit = int(request.args.get('limit', 20))
+    data = readMeasurments(limit)
+    result = ''
+    for row in data:
+        result += "{0:02}:{1:02} T={2} H={3} P={4}<br/>".format(row[0].hour, row[0].minute, row[1], row[2], row[3])
 
-	return result
+    return result
 
 
 if __name__ == "__main__":
-	app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')
