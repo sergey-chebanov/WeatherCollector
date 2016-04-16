@@ -21,7 +21,7 @@ Measurement = namedtuple('Measurement', ['date', 'T', 'H', 'P'])
 
 @app.route('/pressure/')
 def pressure():
-    limit = int(request.args.get('limit', 100))
+    limit = int(request.args.get('limit', 72))
     data = readMeasurments(limit, desc=False)
     result = ''
     return render_template('pressure.html', data=(Measurement(*row) for row in data))
