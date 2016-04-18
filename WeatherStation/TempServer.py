@@ -23,8 +23,15 @@ Measurement = namedtuple('Measurement', ['date', 'T', 'H', 'P'])
 def pressure():
     limit = int(request.args.get('limit', 72))
     data = readMeasurments(limit, desc=False)
-    result = ''
     return render_template('pressure.html', data=(Measurement(*row) for row in data))
+
+@app.route('/test/')
+def index():
+    limit = int(request.args.get('limit', 144))
+    data = readMeasurments(limit, desc=False)
+    measurements = [Measurement(*row) for row in data]
+    *_, recent = measurements
+    return render_template('index.html', data=measurements, recent=recent)
 
 @app.route('/')
 def measurments():

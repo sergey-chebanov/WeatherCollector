@@ -1,0 +1,5 @@
+table.weather {width: 100%}
+.date {font-family: sans-serif; font-size: 2em; color: gray;}
+.mValue {font-size: 8em; color: blue; width: 30%; text-align:right;}
+.mTitle {font-size: 2em; color: gray; text-align: left;}
+.mAll {border: 1px; font-family: sans-serif; display: inline-block; width: 650px;}
