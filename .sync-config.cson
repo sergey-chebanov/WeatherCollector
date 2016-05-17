@@ -1,0 +1,25 @@
+remote:
+  host: "10.0.1.28"
+  user: "pi"
+  path: "Projects/WeatherCollector"
+behaviour:
+  uploadOnSave: true
+  syncDownOnOpen: true
+  forgetConsole: false
+  autoHideConsole: true
+  alwaysSyncAll: false
+option:
+  deleteFiles: false
+  exclude: [
+    ".sync-config.cson"
+    ".git"
+    "node_modules"
+    "tmp"
+    "vendor"
+    ".remote-sync.json"
+    ".git/**"
+    ".git*"
+    "__pycache__/**"
+    "*.pyc"
+    "*.db"
+  ]

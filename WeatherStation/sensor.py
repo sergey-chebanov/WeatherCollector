@@ -37,11 +37,11 @@ def commandSerial(cmd):
 
 command = commandBT
 
-def getMeasurments():
-    rawMeasurments = ''.join(command ('m'))
-    log.debug('raw input: {}'.format(rawMeasurments))
+def getMeasurements():
+    rawMeasurements = ''.join(command ('m'))
+    log.debug('raw input: {}'.format(rawMeasurements))
     try:
-        temp, hum, temp2, _, pres = rawMeasurments.split(':')
+        temp, hum, temp2, _, pres = rawMeasurements.split(':')
         temp = (float(temp2) + float(temp)) / 2
     except ValueError:
         return None

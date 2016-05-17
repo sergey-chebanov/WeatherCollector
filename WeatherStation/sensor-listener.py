@@ -1,8 +1,8 @@
 import sys
 import time
 import traceback
-from sensor import getMeasurments
-from measurmentsDB import addMeasurment
+from sensor import getMeasurements
+from MeasurementsDB import addMeasurement
 import logging as log
 log.basicConfig(format='%(asctime)s %(message)s', filename='sensor.log', level=log.DEBUG)
 
@@ -10,10 +10,10 @@ if __name__ == '__main__':
     for x in range(3):
         try:
             log.debug('try {} ...'.format(x))
-            measurments = getMeasurments()
+            measurments = getMeasurements()
             if measurments is not None:
                 log.debug('try {} succeded: {}'.format(x, measurments))
-                addMeasurment(*measurments)
+                addMeasurement(*measurments)
                 break
             else:
                 time.sleep(5*2**x)
