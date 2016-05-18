@@ -1,8 +1,10 @@
 import time
 import sqlite3
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from flask import g
 from contextlib import closing
+from collections import namedtuple
+
 
 
 def addMeasurement (temp, hum, pres):
@@ -26,7 +28,25 @@ def readMeasurements(limit = 20, desc=True):
     return [row for row in c]
 
 
-def readWaterMeasurements(limit = 20, desc=True):
+WaterMeasurement = namedtuple('WaterMeasurement', ['date', 'hot', 'cold'])
+
+def readWaterMeasurements(days = 1):
+
     c = g.water_db.cursor()
-    c.execute ('select datetime as t, hot, cold from (select datetime, hot, cold from water order by datetime desc limit ?) order by t;'.format(sort='desc' if desc else 'asc'), (limit,))
-    return [row for row in c]
+
+    now = datetime.utcnow()
+    n_days_before = now - timedelta(days)
+
+    c.execute('select count(*) from water where datetime > "{}"'.format(n_days_before.isoformat() + 'Z'));
+    [(count,)] = c.fetchall()
+
+    #get all elements for the days and an extra
+    c.execute ('select datetime as t, hot, cold from (select datetime, hot, cold from water order by datetime desc limit ?) order by t;', (count+1,))
+
+    rows = [WaterMeasurement(*row) for row in c]
+    _, hot, cold = rows.pop(0)
+    rows.insert(0, WaterMeasurement(n_days_before.isoformat() + 'Z', hot, cold))
+    _, hot, cold = rows [-1]
+    rows.append (WaterMeasurement (now.isoformat() + 'Z', hot, cold))
+
+    return rows

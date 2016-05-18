@@ -10,7 +10,7 @@ function drawChart() {
 
     var data = new google.visualization.DataTable();
     data.addColumn('datetime', 'Time');
-    data.addColumn('number', 'Cold Water');
+    data.addColumn('number', 'Холодная Вода');
 
     data.addRows([
         {% for m in data %} [new Date("{{ m.date.strip() }}"), {{ m.cold }}], {% endfor %}
@@ -26,11 +26,10 @@ function drawChart() {
     hAxis: {
         title: 'Время',
         format: 'HH:mm',
-        gridlines: 12,
     },
     chart: {
-        title: 'Pressure measurements',
-        subtitle: 'in mm'
+        title: 'Потребление Воды',
+        subtitle: 'L'
         },
     width: 900,
         height: 500,

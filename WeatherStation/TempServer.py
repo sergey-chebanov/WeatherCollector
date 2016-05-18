@@ -26,7 +26,6 @@ def teardown_request(exception):
 
 Measurement = namedtuple('Measurement', ['date', 'T', 'H', 'P'])
 
-WaterMeasurement = namedtuple('WaterMeasurement', ['date', 'hot', 'cold'])
 
 @app.route('/pressure/')
 def pressure():
@@ -36,16 +35,8 @@ def pressure():
 
 @app.route('/water/')
 def water():
-    limit = int(request.args.get('limit', 72))
-    water_ms = [WaterMeasurement(*row) for row in readWaterMeasurements(limit, desc=False)]
-
-    if 0:
-        result = ''
-        for row in data:
-            wm = WaterMeasurement(*row)
-            result += "D={} H={} C={}<br/>".format(wm.date, wm.hot, wm.cold)
-
-        return result
+    days = int(request.args.get('days', 1))
+    water_ms = readWaterMeasurements(days)
 
     return render_template('water.html', data=water_ms)
 
