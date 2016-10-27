@@ -1,5 +1,5 @@
 remote:
-  host: "10.0.1.28"
+  host: "rpi"
   user: "pi"
   path: "Projects/WeatherCollector"
 behaviour:
@@ -13,13 +13,19 @@ option:
   exclude: [
     ".sync-config.cson"
     ".git"
+    "*.log"
+    "*.pyc"
     "node_modules"
     "tmp"
     "vendor"
     ".remote-sync.json"
     ".git/**"
     ".git*"
+    "__pycache__"
     "__pycache__/**"
     "*.pyc"
     "*.db"
+    "*~"
+    "*.swp"
+    "*.pyc"
   ]

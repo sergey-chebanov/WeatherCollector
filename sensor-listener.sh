@@ -2,4 +2,4 @@
 
 HOME=~/Projects/WeatherCollector/WeatherStation/
 cd $HOME
-python sensor-listener.py
+python3 sensor-listener.py

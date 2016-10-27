@@ -1,47 +1,65 @@
 <!doctype html>
 <html>
 <head>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
-      google.charts.load('current', {'packages':['line'], 'language': 'ru'});
-      google.charts.setOnLoadCallback(drawChart);
+    <title>Кучкуду! Три колодца!</title>
+    <link rel="stylesheet" href='{{ url_for('static', filename='weather.css') }}' type="text/css">
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+    google.charts.load('current', { 'packages': ['corechart'] });
+    google.charts.setOnLoadCallback(drawChart);
 
 function drawChart() {
 
-    var data = new google.visualization.DataTable();
-    data.addColumn('datetime', 'Time');
-    data.addColumn('number', 'Холодная Вода');
-
-    data.addRows([
-        {% for m in data %} [new Date("{{ m.date.strip() }}"), {{ m.cold }}], {% endfor %}
+    var cold_data = new google.visualization.DataTable();
+    cold_data.addColumn('datetime', 'Time');
+    cold_data.addColumn('number', 'Холодная вода');
+    cold_data.addRows([
+        {% for m in cold_water %} [new Date("{{ m.dt.strip() }}"), {{ m.counter }}], {% endfor %}
     ]);
 
+    var hot_data = new google.visualization.DataTable();
+    hot_data.addColumn('datetime', 'Time');
+    hot_data.addColumn('number', 'Горячая вода');
+    hot_data.addRows([
+        {% for m in hot_water %} [new Date("{{ m.dt.strip() }}"), {{ m.counter }}], {% endfor %}
+    ]);
+
+
+
     var options = {
-    vAxis: {
-        titleTextStyle: {
-            color: '#FF0044'
+        title: 'Потребление воды',
+        height: 300,
+        width: '80%',
+        chartArea:
+        {
+            width: '80%',
         },
-        format: '#.0#',
-    },
-    hAxis: {
-        title: 'Время',
-        format: 'HH:mm',
-    },
-    chart: {
-        title: 'Потребление Воды',
-        subtitle: 'L'
+        legend: {
+            position: 'bottom',
         },
-    width: 900,
-        height: 500,
-    };
+        vAxis:
+        {
+            title: 'Ведра',
+        },
+        isStacked: false
+        };
 
-    var chart = new google.charts.Line(document.getElementById('line_top_x'));
+    options.colors = ['blue']
+    var cold_chart = new google.visualization.SteppedAreaChart(document.getElementById('cold_chart'));
+    cold_chart.draw(cold_data, options);
 
-    chart.draw(data, google.charts.Line.convertOptions(options));
+    options.colors = ['red']
+    var hot_chart = new google.visualization.SteppedAreaChart(document.getElementById('hot_chart'));
+    hot_chart.draw(hot_data, options);
     }
 </script>
 </head>
 <body>
-  <div id="line_top_x"></div>
+    <div class='mAll date'>{{ "{:%H:%M}".format(date) }}</div>
+    <table class='mAll'><tr><td class='mTitle'>Холодная</td><td class="mValue">{{ '{}'.format(recent_cold) }}</td></tr></table>
+    <table class='mAll'><tr><td class='mTitle'>Горячая</td><td class="mValue Hot">{{ '{}'.format(recent_hot) }}</td></tr></table>
+    <div id="cold_chart"></div>
+    <div id="hot_chart"></div>
 </body>
 </html>

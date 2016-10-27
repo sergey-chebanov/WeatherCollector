@@ -38,20 +38,23 @@ def commandSerial(cmd):
 command = commandBT
 
 def getMeasurements():
-    rawMeasurements = ''.join(command ('m'))
+    rawMeasurements = ''.join(command ('?'))
     log.debug('raw input: {}'.format(rawMeasurements))
     try:
-        temp, hum, temp2, _, pres = rawMeasurements.split(':')
-        temp = (float(temp2) + float(temp)) / 2
+        temp, hum ,co2, pres, *_ = rawMeasurements.split(':')
     except ValueError:
+        log.error("Value Error {}".format(sys.exc_info()))
         return None
     except:
         log.error("{}".format(sys.exc_info()))
         raise
     else:
-        log.debug('{} {} {}'.format(temp, hum, pres))
-        result = (temp, hum, pres)
+        log.debug('{} {} {} {}'.format(temp, hum, co2, pres))
+        result = (temp, hum, pres, co2)
         return tuple(round(float(i), 2) for i in result)
+
+
+    
 
 if __name__ == '__main__':
     print(command('t'))

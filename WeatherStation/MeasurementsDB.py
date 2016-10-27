@@ -13,6 +13,16 @@ def addMeasurement (temp, hum, pres):
         c.execute("insert into measurements (time, temp, hum, pres) values (?,?,?,?)", (datetime.now(), temp, hum, pres))
         conn.commit()
 
+def addLabeledValues (labeled_values):
+    with closing(sqlite3.connect('weather.db', detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)) as conn:
+        c = conn.cursor()
+        for label, value in labeled_values:
+            c.execute(
+                    "insert into labeled_measurements (time, label, value)"
+                    "values (?,?,?)", (datetime.now(), label, value))
+        conn.commit()
+
+
 
 def readLastMeasurement():
     #get the record
@@ -28,25 +38,74 @@ def readMeasurements(limit = 20, desc=True):
     return [row for row in c]
 
 
-WaterMeasurement = namedtuple('WaterMeasurement', ['date', 'hot', 'cold'])
+WaterMeasurement = namedtuple('WaterMeasurement', ['dt', 'counter', 'type'])
 
-def readWaterMeasurements(days = 1):
+def _dt_isoformat (dt):
+    return dt.isoformat() + "Z"
 
-    c = g.water_db.cursor()
+_direction = {'left': ("<=", "desc"), 'right': (">=", "asc")}
 
-    now = datetime.utcnow()
-    n_days_before = now - timedelta(days)
+Base = namedtuple('Base', ['real_counter', 'counter'])
+def _to_rc(c, base):
+    return base.real_counter + (c - base.counter)
 
-    c.execute('select count(*) from water where datetime > "{}"'.format(n_days_before.isoformat() + 'Z'));
-    [(count,)] = c.fetchall()
 
-    #get all elements for the days and an extra
-    c.execute ('select datetime as t, hot, cold from (select datetime, hot, cold from water order by datetime desc limit ?) order by t;', (count+1,))
+def _read_base_counter (type, dt):
 
-    rows = [WaterMeasurement(*row) for row in c]
-    _, hot, cold = rows.pop(0)
-    rows.insert(0, WaterMeasurement(n_days_before.isoformat() + 'Z', hot, cold))
-    _, hot, cold = rows [-1]
-    rows.append (WaterMeasurement (now.isoformat() + 'Z', hot, cold))
+    with closing(g.water_db.cursor()) as c:
+        c.execute("select datetime, real_counter from base_counter where type=? and datetime < ? order by datetime desc limit 1;", (type, dt))
+        [(base_dt, base_real_counter), *_] = c.fetchall()
 
-    return rows
+        c.execute("select counter from water where type=? and datetime {} ? order by datetime {} limit 1;".format(*_direction ['left']), (type, base_dt))
+        [(base_counter,), *_] = c.fetchall()
+
+        return Base(base_real_counter, base_counter)
+
+def _get_current_counter (type, dt, base):
+
+    with closing(g.water_db.cursor()) as c:
+        #get end point counter
+        c.execute("select counter from water where type=? and datetime {} ? order by datetime {} limit 1;".format(*_direction ['left']), (type, dt))
+        [(counter,), *_] = c.fetchall()
+
+        print (counter, base)
+
+        return _to_rc(counter, base)
+
+
+def readWaterMeasurements(type, hours, relative):
+
+    with closing (g.water_db.cursor()) as c:
+
+        now = datetime.utcnow()
+        dt_from = now - timedelta(hours = hours)
+
+        print ("from {} to {}".format(dt_from, now))
+
+        rows = []
+
+
+        base = Base(*_read_base_counter(type, dt_from))
+
+        if relative:
+            base = Base(0, base.counter)
+
+        print (base)
+
+        for dt in (dt_from, now):
+            real_counter = _get_current_counter(type, _dt_isoformat(dt), base)
+            point = WaterMeasurement(_dt_isoformat(dt), real_counter, type)
+            print (point)
+            rows += [point,]
+
+        query = 'select datetime as t, counter, type from (select datetime, counter, type from water where type = ? and datetime > ? and datetime < ? order by datetime desc) order by t'
+
+
+        rows += [WaterMeasurement(dt = row[0], type = row[2], counter = _to_rc(row[1], base)) for row in c.execute(query, (type, _dt_isoformat(dt_from), _dt_isoformat(now)))]
+
+
+        rows = sorted(rows, key=lambda r: r.dt)
+        print ("--------- Rows ---------")
+        for row in rows:
+            print(row)
+        return rows
