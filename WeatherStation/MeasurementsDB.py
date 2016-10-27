@@ -32,6 +32,12 @@ def readLastMeasurement():
     return row
 
 
+def readLabeledValues(label, limit = 20, desc=True):
+        c = g.db.cursor()
+        c.execute ("select * from (select time, value from labeled_measurements where label=? order by time desc limit ?) order by time {sort}".format(sort='desc' if desc else 'asc'), (label, limit,))
+        return [row for row in c]
+
+
 def readMeasurements(limit = 20, desc=True):
     c = g.db.cursor()
     c.execute ("select * from (select time, temp, hum, pres from measurements order by time desc limit ?) order by time {sort}".format(sort='desc' if desc else 'asc'), (limit,))

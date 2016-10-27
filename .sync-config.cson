@@ -1,5 +1,5 @@
 remote:
-  host: "rpi"
+  host: "rpi-local"
   user: "pi"
   path: "Projects/WeatherCollector"
 behaviour:

@@ -1,6 +1,6 @@
 from flask import Flask, request, g, render_template
 import sqlite3
-from MeasurementsDB import readMeasurements, readWaterMeasurements
+from MeasurementsDB import readMeasurements, readWaterMeasurements, readLabeledValues
 from collections import namedtuple
 from datetime import datetime
 
@@ -68,9 +68,11 @@ def water():
 def index():
     limit = int(request.args.get('limit', 144))
     data = readMeasurements(limit, desc=False)
+    co2 = readLabeledValues('co2', limit, desc=False)
+    print (co2)
     measurements = [Measurement(*row) for row in data]
     *_, recent = measurements
-    return render_template('index.html', data=measurements, recent=recent)
+    return render_template('index.html', data=measurements, recent=recent, co2=co2)
 
 @app.route('/test/')
 def Measurements():
